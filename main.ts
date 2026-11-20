@@ -29,5 +29,20 @@ if (typeof parsed.url !== 'string' || parsed.url.length === 0) {
   process.exit(1);
 }
 
+// The address must also be a valid https URL, so a typo or a non-web
+// scheme in VIDEO.json fails loudly instead of pointing the house at
+// something it cannot read.
+let videoUrl: URL;
+try {
+  videoUrl = new URL(parsed.url);
+} catch {
+  console.error('VIDEO.json url is not a valid URL:', parsed.url);
+  process.exit(1);
+}
+if (videoUrl.protocol !== 'https:') {
+  console.error('VIDEO.json url must use https:', parsed.url);
+  process.exit(1);
+}
+
 mkdirSync(OUTPUT_DIR, { recursive: true });
 copyFileSync(SOURCE, TARGET);
